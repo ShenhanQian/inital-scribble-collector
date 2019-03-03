@@ -29,7 +29,8 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
     def afterGenerationConfig(self):
         self.seq_idx = 0
-        self.seq_list = os.listdir(self.lineEdit_media_dir.text())
+        self.seq_dir = self.lineEdit_dataset_dir.text() + 'JPEGImages'
+        self.seq_list = os.listdir(self.seq_dir)
         self.seq_num = len(self.seq_list)
 
         self.selectSeq()
@@ -41,8 +42,8 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
 
 
-        self.pushButton_next.clicked.connect(self.nextSeq)
-        self.pushButton_back.clicked.connect(self.backSeq)
+        self.pushButton_seq_next.clicked.connect(self.nextSeq)
+        self.pushButton_seq_back.clicked.connect(self.backSeq)
         self.pushButton_rst.clicked.connect(self.reset)
         self.pushButton_save.clicked.connect(self.save)
 
@@ -52,14 +53,15 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.updateFrame()
 
     def updateFrame(self):
-        self.frame_list = os.listdir(self.lineEdit_media_dir.text() + '/' + self.seq_name)
+        self.frame_dir = self.seq_dir + '/' + self.seq_name
+        self.frame_list = os.listdir(self.frame_dir)
         self.frame_nums = len(self.frame_list)
         self.horizontalSlider.setMaximum(self.frame_nums - 1)
         self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()))
         self.loadImg()
 
     def loadImg(self):
-        img_path = self.lineEdit_media_dir.text() + '/' + self.seq_name + '/' +self.frame_list[self.horizontalSlider.value()]
+        img_path = self.frame_dir + '/' +self.frame_list[self.horizontalSlider.value()]
         img = QImage(img_path)
         self.pixmap = QPixmap.fromImage(img.scaledToHeight(self.canvasHeight))
         self.canvas.setPixmap(self.pixmap)
