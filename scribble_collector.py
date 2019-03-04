@@ -307,13 +307,13 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
     def checkPath(self):
         self.lineEdit_dataset_dir.update()
-        self.seq_dir = self.lineEdit_dataset_dir.text() + '/JPEGImages'
+        self.seq_dir = os.path.join(self.lineEdit_dataset_dir.text(), 'JPEGImages')
         print(self.seq_dir)
         try:
             os.listdir(self.seq_dir)
         except:
-            self.seq_dir = './JPEGImages'
-            self.lineEdit_dataset_dir.setText('./')
+            self.seq_dir = './Youtube-VOS/JPEGImages'
+            self.lineEdit_dataset_dir.setText('./Youtube-VOS')
 
 # Image Processing and display
     def selectSeq(self):
@@ -325,12 +325,12 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.label_seq_name.setText('Sequence Name: ' + self.seq_name)
 
         self.frame_dir = self.seq_dir + '/' + self.seq_name
-        self.frame_list = os.listdir(self.frame_dir)
+        self.frame_list = np.sort(os.listdir(self.frame_dir))
         self.frame_nums = len(self.frame_list)
         self.horizontalSlider.setMaximum(self.frame_nums - 1)
 
         self.annot_frame_dir = self.annot_dir + '/' + self.seq_name
-        self.annot_frame_list = os.listdir(self.annot_frame_dir)
+        self.annot_frame_list = np.sort(os.listdir(self.annot_frame_dir))
         self.annot_frame_nums = len(self.frame_list)
 
         assert self.frame_nums == self.annot_frame_nums  # annotations should correspond with frames
