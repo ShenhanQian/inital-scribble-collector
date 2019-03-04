@@ -42,14 +42,15 @@ def parse_json(json_path, image_dir):
                 #     stroke['end_time'] = item['end_time']
                 #     scribbles.append(stroke)
 
-
+    print('frame:', frame_idx)
     # image_path = image_dir + seq_name + '\\' + str(frame_idx) + '.jpg'
     image_path = image_dir + seq_name + '\\' + '%05d' %frame_idx + '.jpg'
+    print()
     print(image_path)
 
     img = cv2.imread(image_path)
     img_h, img_w, _ = img.shape
-    print(img_h, img_w)
+    print('size:', img_h, img_w)
     cv2.imshow('0', img)
 
     for idx, stroke in enumerate(scribbles):
@@ -58,7 +59,7 @@ def parse_json(json_path, image_dir):
             pt_y = int(img_h * pt[1])
             cv2.circle(img, (pt_x, pt_y), 1, (0,255,0))
             cv2.imshow('0', img)
-            cv2.waitKey(4)
+            cv2.waitKey(1)
 
             # time.sleep(1)
 

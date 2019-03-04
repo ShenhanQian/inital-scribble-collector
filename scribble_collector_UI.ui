@@ -216,7 +216,7 @@
              <item>
               <widget class="QPushButton" name="pushButton_seq_back">
                <property name="text">
-                <string>Back</string>
+                <string>Last</string>
                </property>
               </widget>
              </item>
@@ -308,7 +308,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS\</string>
+          <string>E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS\123</string>
          </property>
         </widget>
        </item>
