@@ -21,11 +21,11 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
     def afterGenerationConfig(self):
         self.seq_idx = 0
-        self.seq_dir = self.lineEdit_dataset_dir.text() + 'JPEGImages'
+        self.seq_dir = self.lineEdit_dataset_dir.text() + '/JPEGImages'
         self.seq_list = os.listdir(self.seq_dir)
         self.seq_num = len(self.seq_list)
 
-        self.annot_dir = self.lineEdit_dataset_dir.text() + 'Annotations'
+        self.annot_dir = self.lineEdit_dataset_dir.text() + '/Annotations'
 
         self.canvas.setMouseTracking(True)
         self.horizontalSlider.valueChanged.connect(self.reset)
@@ -36,7 +36,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
         self.pushButton_seq_next.clicked.connect(self.nextSeq)
         self.pushButton_seq_back.clicked.connect(self.backSeq)
-        self.pushButton_undo.clicked.connect(self.undo)
         self.pushButton_rst.clicked.connect(self.reset)
         self.pushButton_save.clicked.connect(self.save)
 
@@ -45,6 +44,7 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 # Image Processing and display
     def selectSeq(self):
         self.painting = False
+        self.labeled_frame = None
         self.init_time = None
 
         self.seq_name = self.seq_list[self.seq_idx]
@@ -61,17 +61,32 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
         assert self.frame_nums == self.annot_frame_nums  # annotations should correspond with frames
 
-        self.strokes = {'scribbles': [], 'sequence': self.seq_name}
+
 
         self.loadMetaJson()
-        self.loadImg()
+        self.reset()
+
+    def loadExistJson(self):
+        read_path = self.lineEdit_dataset_dir.text() + '/Scribbles/' + self.seq_name + '/'
+        json_path = read_path + '%03d' % (int(self.lineEdit_uid.text())) + '.json'
+
+        if os.path.exists(json_path) is True:
+            with open(json_path, 'r') as file:
+                line = file.readline()
+                info_dict = json.loads(line)
+
+            self.label_labeld.setText('Labeled!')
+            self.labeled_frame = -1
+        else:
+            self.label_labeld.setText('-')
+
 
     def loadMetaJson(self):
         meta_json_path = self.lineEdit_dataset_dir.text() + '/meta.json'
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
         self.obj_num = len(meta_json['videos'][self.seq_name]['objects'])
-        self.label_obj.setText('Object Number: ' + str(self.obj_num))
+        self.label_obj.setText('Obj Number: ' + str(self.obj_num))
 
     def loadImg(self):
         img_path = self.frame_dir + '/' + self.frame_list[self.horizontalSlider.value()]
@@ -101,6 +116,8 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         for i in range(1, self.obj_num + 1):
             mask = np.array(self.label == i, dtype=np.uint8) * 255
             self.mask_list.append(mask)
+        if len(np.unique(self.label)) < self.obj_num:
+            self.labeled_frame = -1
 
 
     def updatePixmap(self):
@@ -155,19 +172,29 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             self.seq_idx -= 1
         self.selectSeq()
 
-    def undo(self):
+    def delete(self):
         '''remove the last stroke'''
         pass
 
     def reset(self):
         '''remove all the strokes'''
+        self.loadExistJson()
         self.loadImg()
         self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()))
-        self.initTempVar()
+
+        self.init_time = None
+        self.labeled_frame = None
+        self.labeled_obj = []
+        self.strokes = {'scribbles': [], 'sequence': self.seq_name}
+        self.textBrowser.setText('')
 
     def save(self):
         '''save all the stroke in the current frame'''
-        output_path = os.getcwd() + './Scribbles/' + self.seq_name + '/'
+        if len(self.labeled_obj) < self.obj_num:
+            self.textBrowser.setText('Labeling not complete!')
+            return
+
+        output_path = self.lineEdit_dataset_dir.text() + '/Scribbles/' + self.seq_name + '/'
 
         if os.path.exists(output_path) is False:
             os.makedirs(output_path)
@@ -183,10 +210,13 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         with open(json_path, 'w') as f:
             json.dump(self.strokes, f)
 
+        self.reset()
+
 
     # Callback functions
     def resizeEvent(self, event):
-        self.updatePixmap()
+        pass
+        # self.updatePixmap()
 
     def cursorMoveEvent(self, event):
         x = event.x()
@@ -194,9 +224,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
             self.painting = False
             return
-
-        self.label_x.setText('x:' + str(x))
-        self.label_y.setText('y:' + str(y))
 
         if self.painting == True:
             if self.label[y, x] == self.curent_obj:
@@ -213,16 +240,22 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
             return
 
+        # if self.label[y, x] != 0 and \
+        #         (self.labeled_frame is None or self.labeled_frame == self.horizontalSlider.value()):
         if self.label[y, x] != 0:
             self.painting = True
+            self.labeled_frame = self.horizontalSlider.value()
             self.curent_obj = self.label[y, x]
 
             self.cur_stroke = dict()
 
             self.cur_stroke['path'] = []
-            self.cur_stroke['path'].append([x, y])
+            self.cur_stroke['path'].append([x/float(self.img_W), y/float(self.img_H)])
+            # self.cur_stroke['path'].append([x, y])
+
 
             self.cur_stroke['object_id'] = int(self.curent_obj)
+            self.labeled_obj.append(self.curent_obj)
 
             if self.init_time is None:
                 self.init_time = int(time.time() * 1000)
@@ -238,7 +271,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         if self.painting == True:
             self.painting = False
             self.cur_stroke['end_time'] = int(time.time()*1000) - self.init_time
-            self.strokes['scribbles'].append(self.cur_stroke)
 
     # Debug functions
 
