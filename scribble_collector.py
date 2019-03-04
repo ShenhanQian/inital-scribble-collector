@@ -14,12 +14,14 @@ from PIL import Image
 
 
 class MyWidget(QtWidgets.QWidget, Ui_Form):
-    def __init__(self, dataset_dir):
+    def __init__(self):
         super().__init__()
         self.setupUi(self)
-
-        self.lineEdit_dataset_dir.setText(dataset_dir)
+        self.path_correct = False
+        self.checkPath()
         self.afterGenerationConfig()
+
+
 
 
     def afterGenerationConfig(self):
@@ -281,26 +283,37 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             [96, 224, 192],
             [224, 224, 192]], dtype=np.uint8)
 
-        self.seq_idx = 0
-        self.seq_dir = self.lineEdit_dataset_dir.text() + '/JPEGImages'
-        self.seq_list = os.listdir(self.seq_dir)
-        self.seq_num = len(self.seq_list)
-
-        self.annot_dir = self.lineEdit_dataset_dir.text() + '/Annotations'
-
         self.canvas.setMouseTracking(True)
         self.horizontalSlider.valueChanged.connect(self.reset)
         self.canvas.mouseMoveEvent = self.cursorMoveEvent
         self.canvas.mousePressEvent = self.cursorPressEvent
         self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
-
-
+        #
+        #
         self.pushButton_seq_next.clicked.connect(self.nextSeq)
         self.pushButton_seq_back.clicked.connect(self.backSeq)
         self.pushButton_rst.clicked.connect(self.reset)
         self.pushButton_save.clicked.connect(self.save)
 
+        self.seq_idx = 0
+        self.loadSeqList()
+        self.seq_num = len(self.seq_list)
+        print(self.seq_num)
+
+        self.annot_dir = self.lineEdit_dataset_dir.text() + '/CleanedAnnotations'
+
         self.selectSeq()
+
+
+    def checkPath(self):
+        self.lineEdit_dataset_dir.update()
+        self.seq_dir = self.lineEdit_dataset_dir.text() + '/JPEGImages'
+        print(self.seq_dir)
+        try:
+            os.listdir(self.seq_dir)
+        except:
+            self.seq_dir = './JPEGImages'
+            self.lineEdit_dataset_dir.setText('./')
 
 # Image Processing and display
     def selectSeq(self):
@@ -327,6 +340,15 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.loadMetaJson()
         self.reset()
 
+    def loadSeqList(self):
+        txt_path = './sequences.txt'
+
+        assert os.path.exists(txt_path)
+
+        with open(txt_path, 'r') as file:
+            self.seq_list = file.readlines()
+        self.seq_list = [i.rstrip() for i in self.seq_list]
+
     def loadExistJson(self):
         read_path = self.lineEdit_dataset_dir.text() + '/Scribbles/' + self.seq_name + '/'
         json_path = read_path + '%03d' % (int(self.lineEdit_uid.text())) + '.json'
@@ -340,7 +362,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             self.labeled_frame = -1
         else:
             self.label_labeld.setText('-')
-
 
     def loadMetaJson(self):
         meta_json_path = self.lineEdit_dataset_dir.text() + '/meta.json'
@@ -574,11 +595,12 @@ def init_args():
 
 
 if __name__ == "__main__":
-    args = init_args()
 
-    assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
+    # args = init_args()
+    # assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
 
     app = QtWidgets.QApplication(sys.argv)
-    myApp = MyWidget(args.dataset_dir)
-    myApp.show()
+    gui = MyWidget()
+    gui.show()
+
     sys.exit(app.exec_())

@@ -209,10 +209,10 @@ class Ui_Form(object):
         self.pushButton_rst.setText(_translate("Form", "Reset"))
         self.pushButton_save.setText(_translate("Form", "Save"))
         self.label_seq_name.setText(_translate("Form", "Sequence Name: "))
-        self.pushButton_seq_back.setText(_translate("Form", "Back"))
+        self.pushButton_seq_back.setText(_translate("Form", "Last"))
         self.pushButton_seq_next.setText(_translate("Form", "Next"))
         self.label.setText(_translate("Form", "User ID"))
         self.lineEdit_uid.setText(_translate("Form", "1"))
         self.label_2.setText(_translate("Form", "Dataset Directory"))
-        self.lineEdit_dataset_dir.setText(_translate("Form", "E:\\Documents\\SIST\\Projects\\Davis_challenge\\dataset\\Youtube-VOS\\123"))
+        self.lineEdit_dataset_dir.setText(_translate("Form", "E:\\Documents\\SIST\\Projects\\Davis_challenge\\dataset\\Youtube-VOS"))
 
