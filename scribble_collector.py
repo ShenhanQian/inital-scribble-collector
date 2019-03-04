@@ -1,4 +1,4 @@
-import sys, copy
+import sys
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.Qt import QLineF, QPoint  # QRectF
 from PyQt5.QtGui import QImage, QPixmap, QPen, QBrush, QPainter  # QCursor  # QPainter, QBrush
@@ -17,13 +17,7 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.initTempVar()
         self.afterGenerationConfig()
-
-    def initTempVar(self):
-        self.painting = False
-        self.obj_num = 0
-        self.obj_idx = 0
 
     def afterGenerationConfig(self):
         self.seq_idx = 0
@@ -32,13 +26,9 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.seq_num = len(self.seq_list)
 
         self.annot_dir = self.lineEdit_dataset_dir.text() + 'Annotations'
-        self.annot_list = os.listdir(self.annot_dir)
-
-        self.selectSeq()
-
 
         self.canvas.setMouseTracking(True)
-        self.horizontalSlider.valueChanged.connect(self.loadImg)
+        self.horizontalSlider.valueChanged.connect(self.reset)
         self.canvas.mouseMoveEvent = self.cursorMoveEvent
         self.canvas.mousePressEvent = self.cursorPressEvent
         self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
@@ -46,72 +36,78 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
         self.pushButton_seq_next.clicked.connect(self.nextSeq)
         self.pushButton_seq_back.clicked.connect(self.backSeq)
-        self.pushButton_obj_next.clicked.connect(self.nextObj)
-        self.pushButton_obj_back.clicked.connect(self.backObj)
+        self.pushButton_undo.clicked.connect(self.undo)
         self.pushButton_rst.clicked.connect(self.reset)
         self.pushButton_save.clicked.connect(self.save)
 
+        self.selectSeq()
+
 # Image Processing and display
     def selectSeq(self):
-        self.obj_idx = 0
+        self.painting = False
+        self.init_time = None
+
         self.seq_name = self.seq_list[self.seq_idx]
         self.label_seq_name.setText('Sequence Name: ' + self.seq_name)
-        self.updateFrame()
 
-    def updateFrame(self):
         self.frame_dir = self.seq_dir + '/' + self.seq_name
         self.frame_list = os.listdir(self.frame_dir)
         self.frame_nums = len(self.frame_list)
         self.horizontalSlider.setMaximum(self.frame_nums - 1)
 
-
         self.annot_frame_dir = self.annot_dir + '/' + self.seq_name
         self.annot_frame_list = os.listdir(self.annot_frame_dir)
         self.annot_frame_nums = len(self.frame_list)
 
-        assert self.frame_nums == self.annot_frame_nums
+        assert self.frame_nums == self.annot_frame_nums  # annotations should correspond with frames
 
-        self.label_obj.setText('Object ID: 0')
+        self.strokes = {'scribbles': [], 'sequence': self.seq_name}
 
+        self.loadMetaJson()
         self.loadImg()
 
+    def loadMetaJson(self):
+        meta_json_path = self.lineEdit_dataset_dir.text() + '/meta.json'
+        with open(meta_json_path, 'r') as f:
+            meta_json = json.load(f)
+        self.obj_num = len(meta_json['videos'][self.seq_name]['objects'])
+        self.label_obj.setText('Object Number: ' + str(self.obj_num))
+
     def loadImg(self):
-        self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()))
-        self.loadMask()
-        try:
-            mask = self.mask_list[self.obj_idx]
-        except:
-            mask = np.zeros((self.img.shape[0], self.img.shape[1]), dtype=np.uint8)
-        inv_mask = cv2.bitwise_not(mask)
-
-        img_path = self.frame_dir + '/' +self.frame_list[self.horizontalSlider.value()]
+        img_path = self.frame_dir + '/' + self.frame_list[self.horizontalSlider.value()]
         img = cv2.imread(img_path)
+        self.img_H, self.img_W, _ = img.shape
 
-        if self.obj_idx != 0:
-            foreground = cv2.bitwise_and(img, img, mask=mask)
-            background = cv2.bitwise_and(img, img, mask=inv_mask)
-            self.img = cv2.addWeighted(foreground, 0.7, img, 0.3, 0)
-        else:
-            self.img = img
+        self.loadMask()
+
+        for idx, mask in enumerate(self.mask_list):
+            inv_mask = cv2.bitwise_not(mask)
+            c_img = self.getBlank(img.shape[1], img.shape[0], self.getColor(idx))
+            fg = cv2.addWeighted(img, 0.6, c_img, 0.4, 0)
+            fg = cv2.bitwise_and(fg, fg, mask=mask)
+            bg = cv2.bitwise_and(img, img, mask=inv_mask)
+            img = cv2.add(fg, bg)
+
+        self.img = img
         self.updatePixmap()
 
     def loadMask(self):
         annot_frame_path = self.annot_frame_dir + '/' +self.annot_frame_list[self.horizontalSlider.value()]
 
-        label = Image.open(annot_frame_path)
-        label = np.array(label, dtype=np.uint8)
-        self.obj_num = len(np.unique(label)) - 1
+        self.label = Image.open(annot_frame_path)
+        self.label = np.array(self.label, dtype=np.uint8)
 
         self.mask_list = []
-        for i in range(0, self.obj_num + 1):
-            mask = np.array(label == i, dtype=np.uint8) * 255
+        for i in range(1, self.obj_num + 1):
+            mask = np.array(self.label == i, dtype=np.uint8) * 255
             self.mask_list.append(mask)
+
 
     def updatePixmap(self):
         rgbImage = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                    QImage.Format_RGB888)
-        self.pixmap = QPixmap.fromImage(convertToQtFormat.scaledToHeight(self.canvas.height()))
+        self.pixmap = QPixmap.fromImage(convertToQtFormat)
         self.canvas.setPixmap(self.pixmap)
 
     def drawPoint(self, x, y):
@@ -121,8 +117,32 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         painter = QPainter(self.pixmap)
         painter.setPen(pen)
         painter.setBrush(brush)
-        painter.drawEllipse(x, y, 5, 5)
+        painter.drawEllipse(x, y, 3, 3)
         self.canvas.setPixmap(self.pixmap)
+
+    def getColor(self, idx):
+        palette = []
+        palette.append((0, 255 ,0))
+        palette.append((255, 0, 0))
+        palette.append((0, 0, 255))
+        palette.append((128, 128, 0))
+        palette.append((128, 0, 128))
+        palette.append((0, 128, 128))
+        assert idx < len(palette)
+        return palette[idx]
+
+    def getBlank(self, width, height, rgb_color=(0, 0, 0)):
+        """Create new image(numpy array) filled with certain color in RGB"""
+        # Create black blank image
+        image = np.zeros((height, width, 3), np.uint8)
+
+        # Since OpenCV uses BGR, convert the color first
+        color = tuple(reversed(rgb_color))
+        # Fill image with color
+        image[:] = color
+        return image
+
+
 
 # User Interface
     def nextSeq(self):
@@ -131,27 +151,37 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.selectSeq()
 
     def backSeq(self):
-        if self.seq_idx > 1:
+        if self.seq_idx > 0:
             self.seq_idx -= 1
         self.selectSeq()
 
-    def nextObj(self):
-        if self.obj_idx < self.obj_num:
-            self.obj_idx += 1
-            self.label_obj.setText('Object ID: ' + str(self.obj_idx))
-            self.loadImg()
-
-    def backObj(self):
-        if self.obj_idx > 0:
-            self.obj_idx -= 1
-            self.label_obj.setText('Object ID: ' + str(self.obj_idx))
-            self.loadImg()
+    def undo(self):
+        '''remove the last stroke'''
+        pass
 
     def reset(self):
+        '''remove all the strokes'''
         self.loadImg()
+        self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()))
+        self.initTempVar()
 
     def save(self):
-        pass
+        '''save all the stroke in the current frame'''
+        output_path = os.getcwd() + './Scribbles/' + self.seq_name + '/'
+
+        if os.path.exists(output_path) is False:
+            os.makedirs(output_path)
+
+        json_path = output_path + '%03d' % (int(self.lineEdit_uid.text())) + '.json'
+
+        for idx in range(0,self.frame_nums):
+            if idx == self.horizontalSlider.value():
+                self.strokes['scribbles'].append([self.cur_stroke])
+            else:
+                self.strokes['scribbles'].append([])
+
+        with open(json_path, 'w') as f:
+            json.dump(self.strokes, f)
 
 
     # Callback functions
@@ -161,18 +191,54 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
     def cursorMoveEvent(self, event):
         x = event.x()
         y = event.y()
+        if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
+            self.painting = False
+            return
+
         self.label_x.setText('x:' + str(x))
         self.label_y.setText('y:' + str(y))
 
-        if self.painting ==True:
-            self.drawPoint(x, y)
+        if self.painting == True:
+            if self.label[y, x] == self.curent_obj:
+                self.drawPoint(x, y)
+                self.cur_stroke['path'].append([x, y])
+            else:
+                print('Out of mask!')
+                self.painting = False
 
     def cursorPressEvent(self, event):
-        if self.obj_idx != 0:
+        x = event.x()
+        y = event.y()
+
+        if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
+            return
+
+        if self.label[y, x] != 0:
             self.painting = True
+            self.curent_obj = self.label[y, x]
+
+            self.cur_stroke = dict()
+
+            self.cur_stroke['path'] = []
+            self.cur_stroke['path'].append([x, y])
+
+            self.cur_stroke['object_id'] = int(self.curent_obj)
+
+            if self.init_time is None:
+                self.init_time = int(time.time() * 1000)
+                self.cur_stroke['start_time'] = 0
+            else:
+                self.cur_stroke['start_time'] = int(time.time() * 1000) - self.init_time
+
+        else:
+            print('Out of mask!')
+
 
     def cursorReleaseEvent(self, event):
-        self.painting = False
+        if self.painting == True:
+            self.painting = False
+            self.cur_stroke['end_time'] = int(time.time()*1000) - self.init_time
+            self.strokes['scribbles'].append(self.cur_stroke)
 
     # Debug functions
 
