@@ -4,5 +4,4 @@ numpy
 jsonschema
 PyQt5
 PyQt5-sip
-pyqt5-tools
 
