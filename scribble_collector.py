@@ -36,6 +36,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             os.makedirs(error_json_dir)
         self.user_json_path = os.path.join(error_json_dir, '%03d_log.json' % int(self.user_id))
 
+        print('Loading...')
         self.afterGenerationConfig()
 
     def afterGenerationConfig(self):
@@ -77,6 +78,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         assert self.frame_nums == self.annot_frame_nums  # annotations should correspond with frames
 
+        self.loadExistJson()
         self.loadMetaJson()
         self.reset()
 
@@ -100,6 +102,9 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def loadExistJson(self):
         read_path = self.dataset_dir + '/Scribbles/' + self.seq_name + '/'
         json_path = read_path + '%03d' % (int(self.user_id)) + '.json'
+
+        print('Sequence: ' + str(self.seq_idx) + '/' + str(self.seq_num))
+
 
         if os.path.exists(json_path) is True:
             with open(json_path, 'r') as file:
@@ -214,6 +219,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
 # User Interface
     def nextSeq(self):
+
         if self.seq_idx < self.seq_num - 1:
             self.seq_idx += 1
             self.selectSeq()
@@ -222,7 +228,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 'Sequence: ' + str(len(self.labeled_seq) + len(self.error_seq)) + '/' + str(self.seq_num))
             self.destroy(True)
             print('Congratulations! Mission Complete!')
-            time.sleep(3)
             sys.exit()
 
     def lastSeq(self):
@@ -242,7 +247,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def reset(self):
         '''remove all the scribbles'''
-        self.loadExistJson()
         self.loadImg()
         self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()) + '/' + str(self.frame_nums))
 
