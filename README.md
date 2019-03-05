@@ -28,7 +28,11 @@ User ID | Name
 :---:   | :---:
 1       | Zhenjie Chai
 2       | Xianing Chen
-3       | Jiale Xu 
+3       | Jiale Xu
+4       | Jia Zheng
+5       | Zhaoyuan Yin
+6       | Lei Jin
+7       | Shenhan Qian  
 
 ### Attention
 * If a certain sequence can't be labeled properly you can click on `Wrong Sequence` 
