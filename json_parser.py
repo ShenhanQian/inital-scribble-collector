@@ -34,27 +34,22 @@ def parse_json(json_path, image_dir):
             if len(frame) > 0:
                 frame_idx = idx
                 scribbles = frame
-                # for item in frame:
-                #     stroke = dict()
-                #     stroke['path'] = item['path']
-                #     stroke['object_id'] = item['object_id']
-                #     stroke['start_time'] = item['start_time']
-                #     stroke['end_time'] = item['end_time']
-                #     scribbles.append(stroke)
+
 
     print('frame:', frame_idx)
     # for DAVIS
     # image_path = image_dir + seq_name + '\\' + '%05d' %frame_idx + '.jpg
 
     # for Youtube_VOS
-    # image_path = image_dir + seq_name + '\\' + '%05d' %frame_idx + '.jpg
-    print()
+    image_path = os.path.join(image_dir, seq_name,'%05d.jpg' %frame_idx)
+
     print(image_path)
 
-    img = cv2.imread(image_path)
+    img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
     img_h, img_w, _ = img.shape
+
     print('size:', img_h, img_w)
-    cv2.imshow('0', img)
+    # cv2.imshow('0', img)
 
     for idx, stroke in enumerate(scribbles):
         for pt in stroke['path']:

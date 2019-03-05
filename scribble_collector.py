@@ -16,6 +16,7 @@ from PIL import Image
 #         super().__init__()
 #         self.setupUi(self)
 
+
 class MainWindow(QtWidgets.QWidget, Ui_Form):
     def __init__(self, dataset_dir, user_id):
         super().__init__()
@@ -174,14 +175,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.canvas.setPixmap(self.pixmap)
 
     def getColor(self, idx):
-        palette = []
-        palette.append((0, 255, 255))  # 青
-        palette.append((255, 0, 255))  # purple
-        palette.append((60, 60, 255))  # blue
-        palette.append((255, 30, 30))  # red
-        palette.append((200, 255, 2))  # Yellow
-        palette.append((0, 160, 0))  # dark green
-        palette.append((255, 100, 0))  # orange
+        palette = [(0, 255, 255), (255, 0, 255), (60, 60, 255), (255, 30, 30), (200, 255, 2), (0, 160, 0), (255, 100, 0)]
+        # 青
+        # purple
+        # blue
+        # red
+        # Yellow
+        # dark green
+        # orange
 
         assert idx < len(palette)
         return palette[idx]
