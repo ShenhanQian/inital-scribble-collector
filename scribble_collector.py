@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         if os.path.exists(error_json_dir) is False:
             os.makedirs(error_json_dir)
-        self.user_json_path = os.path.join(error_json_dir, '%03d.json' % int(self.user_id))
+        self.user_json_path = os.path.join(error_json_dir, '%03d_log.json' % int(self.user_id))
 
         self.afterGenerationConfig()
 
@@ -170,12 +170,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def getColor(self, idx):
         palette = []
-        palette.append((0, 255 ,0))
-        palette.append((255, 0, 0))
-        palette.append((0, 0, 255))
-        palette.append((128, 128, 0))
-        palette.append((128, 0, 128))
-        palette.append((0, 128, 128))
+        palette.append((0, 255, 255))  # 青
+        palette.append((255, 0, 255))  # purple
+        palette.append((60, 60, 255))  # blue
+        palette.append((255, 30, 30))  # red
+        palette.append((200, 255, 2))  # Yellow
+        palette.append((0, 160, 0))  # dark green
+        palette.append((255, 100, 0))  # orange
+
         assert idx < len(palette)
         return palette[idx]
 
