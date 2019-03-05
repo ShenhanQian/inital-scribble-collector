@@ -44,9 +44,10 @@ def generate_video(dataset_dir):
     seq_num = len(seq_list)
 
     for user_id in range(1,4):
-
-        fourcc = cv2.VideoWriter_fourcc(*'H264')
-        out = cv2.VideoWriter('scribbles_%03d.mp4' % user_id, fourcc, 90.0, (854, 480))
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter('scribbles_%03d.avi' % user_id, fourcc, 90.0, (854, 480))
+        # fourcc = cv2.VideoWriter_fourcc(*'H264')
+        # out = cv2.VideoWriter('scribbles_%03d.mp4' % user_id, fourcc, 90.0, (854, 480))
         for seq_id, seq_name in enumerate(seq_list):
             start_time = time.time()
             json_path = os.path.join(scribble_dir, seq_name, '%03d.json' % user_id)
@@ -78,6 +79,8 @@ def generate_video(dataset_dir):
                         cv2.circle(img, (pt_x, pt_y), 2, getColor(stroke['object_id']), thickness=-1)
                         out.write(img)
             print(f'User {user_id}: Generated {seq_id}/{seq_num} in {time.time()-start_time}s')
+
+            # break
 
 
 
