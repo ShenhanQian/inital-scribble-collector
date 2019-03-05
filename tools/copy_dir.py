@@ -5,12 +5,16 @@ import numpy as np
 
 from pprint import pprint
 
-rt_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-output_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube_VOS_sample100'
+# rt_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
+# output_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube_VOS_sample100'
+
+rt_dir = '../Youtube-VOS'
+output_dir = '../Sampled-Youtube-VOS'
 
 if __name__ == '__main__':
+    i = 0
 
-    with open('sequences.txt', 'r') as f:
+    with open(f'seq_{0}.txt', 'r') as f:
 
         samples = f.readlines()
         samples = [item.rstrip() for item in samples]
@@ -29,10 +33,3 @@ if __name__ == '__main__':
         shutil.copytree(src_path_jpg, dst_path_jpg)
         if os.path.isdir(dst_path_jpg):
             print(i, "Success J")
-
-
-
-
-
-
-
