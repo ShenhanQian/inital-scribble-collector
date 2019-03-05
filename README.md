@@ -1,4 +1,4 @@
-# inital-scribble-collector
+# initial-scribble-collector
 
 ## Environment configuration
 ```bash

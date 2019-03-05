@@ -14,48 +14,45 @@ from PIL import Image
 
 
 class MyWidget(QtWidgets.QWidget, Ui_Form):
-    def __init__(self):
+    def __init__(self, dataset_dir, user_id):
         super().__init__()
         self.setupUi(self)
-        self.path_correct = False
-        self.checkPath()
+        self.dataset_dir = dataset_dir
+        self.seq_dir = os.path.join(self.dataset_dir, 'JPEGImages')
+        assert os.path.exists(self.seq_dir), print('Error with dataset_dir: Jpeg not exist')
+        self.annot_dir = os.path.join(self.dataset_dir, 'CleanedAnnotations')
+        assert os.path.exists(self.seq_dir), print('Error with dataset_dir: CleanAnnotation not exist')
+
+        self.user_id =user_id
+        assert user_id is not None, print('Error with user id')
+
         self.afterGenerationConfig()
 
-
-
-
     def afterGenerationConfig(self):
-        self.canvas.setMouseTracking(True)
-        self.horizontalSlider.valueChanged.connect(self.reset)
-        self.canvas.mouseMoveEvent = self.cursorMoveEvent
-        self.canvas.mousePressEvent = self.cursorPressEvent
-        self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
-        #
-        #
-        self.pushButton_seq_next.clicked.connect(self.nextSeq)
-        self.pushButton_seq_back.clicked.connect(self.backSeq)
-        self.pushButton_rst.clicked.connect(self.reset)
-        self.pushButton_save.clicked.connect(self.save)
+
 
         self.seq_idx = 0
         self.loadSeqList()
         self.seq_num = len(self.seq_list)
         print(self.seq_num)
 
-        self.annot_dir = self.lineEdit_dataset_dir.text() + '/CleanedAnnotations'
+
+
+        self.canvas.setMouseTracking(True)
+        self.horizontalSlider.valueChanged.connect(self.reset)
+        self.canvas.mouseMoveEvent = self.cursorMoveEvent
+        self.canvas.mousePressEvent = self.cursorPressEvent
+        self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
+        #
+        self.pushButton_seq_next.clicked.connect(self.nextSeq)
+        self.pushButton_seq_back.clicked.connect(self.backSeq)
+        self.pushButton_rst.clicked.connect(self.reset)
+        self.pushButton_save.clicked.connect(self.save)
 
         self.selectSeq()
 
 
-    def checkPath(self):
-        self.lineEdit_dataset_dir.update()
-        self.seq_dir = os.path.join(self.lineEdit_dataset_dir.text(), 'JPEGImages')
-        print(self.seq_dir)
-        try:
-            os.listdir(self.seq_dir)
-        except:
-            self.seq_dir = './Youtube-VOS/JPEGImages'
-            self.lineEdit_dataset_dir.setText('./Youtube-VOS')
+
 
 # Image Processing and display
     def selectSeq(self):
@@ -78,8 +75,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 
         assert self.frame_nums == self.annot_frame_nums  # annotations should correspond with frames
 
-
-
         self.loadMetaJson()
         self.reset()
 
@@ -93,8 +88,8 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         self.seq_list = [i.rstrip() for i in self.seq_list]
 
     def loadExistJson(self):
-        read_path = self.lineEdit_dataset_dir.text() + '/Scribbles/' + self.seq_name + '/'
-        json_path = read_path + '%03d' % (int(self.lineEdit_uid.text())) + '.json'
+        read_path = self.dataset_dir + '/Scribbles/' + self.seq_name + '/'
+        json_path = read_path + '%03d' % (int(self.user_id)) + '.json'
 
         if os.path.exists(json_path) is True:
             with open(json_path, 'r') as file:
@@ -107,7 +102,7 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             self.label_labeld.setText('-')
 
     def loadMetaJson(self):
-        meta_json_path = self.lineEdit_dataset_dir.text() + '/meta.json'
+        meta_json_path = self.dataset_dir + '/meta.json'
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
         self.obj_num = len(meta_json['videos'][self.seq_name]['objects'])
@@ -127,12 +122,6 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             fg = cv2.bitwise_and(fg, fg, mask=mask)
             bg = cv2.bitwise_and(img, img, mask=inv_mask)
             img = cv2.add(fg, bg)
-
-        # for idx, mask in enumerate(self.mask_list):
-        #     inv_mask = cv2.bitwise_not(mask)
-        #     fg = cv2.applyColorMap(img, self.labelcolormap(idx))
-        #     bg = cv2.bitwise_and(img, img, mask=inv_mask)
-        #     img = cv2.add(fg, bg)
 
         self.img = img
         self.updatePixmap()
@@ -244,7 +233,7 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             self.textBrowser.setText('Labeling not complete!')
             return
 
-        output_path = self.lineEdit_dataset_dir.text() + '/Scribbles/' + self.seq_name + '/'
+        output_path = self.dataset_dir + '/Scribbles/' + self.seq_name + '/'
 
         if os.path.exists(output_path) is False:
             os.makedirs(output_path)
@@ -323,9 +312,9 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
             self.cur_stroke['end_time'] = int(time.time()*1000) - self.init_time
 
     def keyPressEvent(self, QKeyEvent):
-        if QKeyEvent.key() == QtCore.Qt.Key_B:
+        if QKeyEvent.key() == QtCore.Qt.Key_A:
             self.backSeq()
-        elif QKeyEvent.key() == QtCore.Qt.Key_F:
+        elif QKeyEvent.key() == QtCore.Qt.Key_D:
             self.nextSeq()
         elif QKeyEvent.key() == QtCore.Qt.Key_Space:
             self.save()
@@ -344,17 +333,18 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
 def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_dir', type=str, help='The path of dataset', default=None)
+    parser.add_argument('--user_id', type=str, default=None)
     return parser.parse_args()
 
 
 
 if __name__ == "__main__":
 
-    # args = init_args()
-    # assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
+    args = init_args()
+    assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
 
     app = QtWidgets.QApplication(sys.argv)
-    gui = MyWidget()
+    gui = MyWidget(args.dataset_dir, args.user_id)
     gui.show()
 
     sys.exit(app.exec_())
