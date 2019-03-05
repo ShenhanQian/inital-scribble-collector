@@ -267,7 +267,7 @@ class MyWidget(QtWidgets.QWidget, Ui_Form):
         if self.painting == True:
             if self.label[y, x] == self.curent_obj:
                 self.drawPoint(x, y)
-                self.cur_stroke['path'].append([x, y])
+                self.cur_stroke['path'].append([x/float(self.img_W), y/float(self.img_H)])
             else:
                 print('Out of mask!')
                 self.painting = False
