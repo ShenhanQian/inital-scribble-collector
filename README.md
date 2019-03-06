@@ -21,8 +21,8 @@ List_id\User_id|Zhenjie Chai 1|Xianing Chen 2 |Jiale Xu 3|Jia Zheng 4|Zhaoyuan Y
 :---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 1       |O|O|O||||
 2       ||||O|O|O|
-3       |||||||O
-4       |||||||
+3       |||||||#
+4       |||||||O
 5       |||||||
 6       |||||||
 7       |||||||

@@ -35,12 +35,13 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.list_id = list_id
         assert self.list_id is not None, print('Error with list id')
+        self.label_list.setText('List: %d    User: %d' % (int(self.list_id), int(self.user_id)))
 
         error_json_dir = os.path.join(self.dataset_dir, 'Scribbles', )
 
         if os.path.exists(error_json_dir) is False:
             os.makedirs(error_json_dir)
-        self.user_json_path = os.path.join(error_json_dir, '%03d_log.json' % int(self.user_id))
+        self.user_json_path = os.path.join(error_json_dir, '%03d_log_%02d.json' % (int(self.user_id), int(self.list_id)))
 
         print('Loading...')
         self.afterGenerationConfig()
@@ -51,7 +52,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.seq_idx = 0
         self.loadSeqList()
         self.loadUserJson()
-        self.seq_num = len(self.seq_list)
 
         self.canvas.setMouseTracking(True)
         self.horizontalSlider.valueChanged.connect(self.reset)
@@ -71,7 +71,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.horizontalSlider.setValue(0)
 
         self.seq_name = self.seq_list[self.seq_idx]
-        self.label_seq.setText('Sequence: ' + str(len(self.labeled_seq) + len(self.error_seq)) + '/' + str(self.seq_num))
+        self.label_seq.setText('Sequence: ' + str(len(self.labeled_seq) + len(self.error_seq)) + '/' + str(self.seq_num) + f' {self.seq_name}')
 
         self.frame_dir = self.seq_dir + '/' + self.seq_name
         self.frame_list = np.sort(os.listdir(self.frame_dir))
@@ -103,6 +103,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         with open(txt_path, 'r') as file:
             self.seq_list = file.readlines()
         self.seq_list = [i.rstrip() for i in self.seq_list]
+        self.seq_num = len(self.seq_list)
 
     def loadExistJson(self):
         read_path = self.dataset_dir + '/Scribbles/' + self.seq_name + '/'

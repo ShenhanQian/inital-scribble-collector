@@ -50,6 +50,19 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
+        <widget class="QLabel" name="label_list">
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>List: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_seq">
          <property name="font">
           <font>
@@ -63,7 +76,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Sequence: </string>
+          <string>Seq: </string>
          </property>
         </widget>
        </item>
@@ -115,27 +128,6 @@
          </property>
          <property name="text">
           <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Consolas</family>
-           <pointsize>12</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Time:</string>
          </property>
         </widget>
        </item>
