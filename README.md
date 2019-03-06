@@ -19,16 +19,16 @@ Please send the zip file to Shenhan Qian, and the next list assignment will come
 ## Task
 List_id\User_id|Zhenjie Chai 1|Xianing Chen 2 |Jiale Xu 3|Jia Zheng 4|Zhaoyuan Yin 5|Lei Jin 6|Shenhan Qian 7
 :---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-1       |O|O|O||||
+1       |O|O|#||||
 2       ||||O|O|O|
-3       |||||||#
-4       |||||||O
-5       |||||||
-6       |||||||
-7       |||||||
-8       |||||||
-9       |||||||
-10      |||||||
+3       ||O|O||||#
+4       ||O|O||||O
+5       ||O|O||||O
+6       ||O|O||||O
+7       |||||||O
+8       ||||O|O|O|
+9       ||||O|O|O|
+10      ||||O|O|O|
 
 
 ## Environment configuration

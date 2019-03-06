@@ -35,7 +35,7 @@ def generate_video(dataset_dir):
     :param json_path:
     """
     scribble_dir = os.path.join(dataset_dir, 'Scribbles')
-    image_dir = os.path.join(dataset_dir, 'JPEGImages', '480p')
+    image_dir = os.path.join(dataset_dir, 'JPEGImages',)
 
     assert ops.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
     assert ops.exists(image_dir), '{:s} not exist'.format(image_dir)
@@ -43,31 +43,38 @@ def generate_video(dataset_dir):
     seq_list = np.sort(os.listdir(scribble_dir))
     seq_num = len(seq_list)
 
-    for user_id in range(1,4):
+    for user_id in range(7, 8):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter('scribbles_%03d.avi' % user_id, fourcc, 90.0, (854, 480))
+        out = cv2.VideoWriter('scribbles_%03d.avi' % user_id, fourcc, 400.0, (960, 540))
         # fourcc = cv2.VideoWriter_fourcc(*'H264')
         # out = cv2.VideoWriter('scribbles_%03d.mp4' % user_id, fourcc, 90.0, (854, 480))
         for seq_id, seq_name in enumerate(seq_list):
+            if seq_name[-5:] == '.json':
+                continue
             start_time = time.time()
             json_path = os.path.join(scribble_dir, seq_name, '%03d.json' % user_id)
             assert os.path.exists(json_path), f'{json_path} not exsit.'
 
-            frame_idx = []
 
+            frame_list = np.sort(os.listdir(os.path.join(image_dir, seq_name)))
+
+            frame_idx = []
+            scribbles = []
             with open(json_path, 'r') as file:
                 line = file.readline()
                 info_dict = json.loads(line)
-
                 for idx, frame in enumerate(info_dict['scribbles']):
                     if len(frame) > 0:
                         frame_idx = idx
                         scribbles = frame
 
-            image_path = os.path.join(image_dir, seq_name, '%05d.jpg' %frame_idx)
+            image_path = os.path.join(image_dir, seq_name, frame_list[frame_idx])
+            # print(image_path)
 
             img = cv2.imread(image_path)
+            img = cv2.resize(img, (960, 540))
             img_h, img_w, _ = img.shape
+
             # ratio = 0.8
             # img = cv2.resize(img, (int(img_w*ratio), int(img_h*ratio)))
 
@@ -77,12 +84,14 @@ def generate_video(dataset_dir):
                         pt_x = int(img_w * pt[0])
                         pt_y = int(img_h * pt[1])
                         cv2.circle(img, (pt_x, pt_y), 2, getColor(stroke['object_id']), thickness=-1)
-                        # out.write(img)
+                        # cv2.imshow('0', img)
+                        out.write(img)
+                        # cv2.waitKey(1)
             print(f'User {user_id}: Generated {seq_id}/{seq_num} in {time.time()-start_time}s')
 
             # break
 
-
+    # cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     args = init_args()
