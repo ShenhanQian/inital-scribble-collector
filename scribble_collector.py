@@ -18,7 +18,7 @@ from PIL import Image
 
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
-    def __init__(self, dataset_dir, user_id):
+    def __init__(self, dataset_dir, user_id, list_id):
         super().__init__()
         self.setupUi(self)
 
@@ -30,6 +30,9 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.user_id =user_id
         assert self.user_id is not None, print('Error with user id')
+
+        self.list_id = list_id
+        assert self.list_id is not None, print('Error with list id')
 
         error_json_dir = os.path.join(self.dataset_dir, 'Scribbles', )
 
@@ -92,9 +95,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.error_seq = set()
 
     def loadSeqList(self):
-        txt_path = './sequences.txt'
-
-        assert os.path.exists(txt_path)
+        txt_path = './sequences/sequences_%02d.txt' % int(self.list_id)
+        assert os.path.exists(txt_path), txt_path
 
         with open(txt_path, 'r') as file:
             self.seq_list = file.readlines()
@@ -375,7 +377,7 @@ def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_dir', type=str, help='The path of dataset', default=None)
     parser.add_argument('--user_id', type=str, default=None)
-    parser.add_argument('--user_id', type=str, default=None)
+    parser.add_argument('--list_id', type=str, default=None)
     return parser.parse_args()
 
 
@@ -386,6 +388,6 @@ if __name__ == "__main__":
     assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
 
     app = QtWidgets.QApplication(sys.argv)
-    mainWin = MainWindow(args.dataset_dir, args.user_id)
+    mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id)
     mainWin.show()
     sys.exit(app.exec_())
