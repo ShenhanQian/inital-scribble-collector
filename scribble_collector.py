@@ -17,7 +17,7 @@ from PIL import Image
 #         self.setupUi(self)
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
-    def __init__(self, dataset_dir, user_id, list_id):
+    def __init__(self, dataset_dir, user_id, list_id, window_size):
         super().__init__()
         self.setupUi(self)
 
@@ -39,6 +39,18 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if os.path.exists(error_json_dir) is False:
             os.makedirs(error_json_dir)
         self.user_json_path = os.path.join(error_json_dir, '%03d_log_%02d.json' % (int(self.user_id), int(self.list_id)))
+
+        if window_size == 0:  # small
+            self.canvas_height = 60 * 12
+        elif window_size == 1:  # normal
+            self.canvas_height = 60 * 15
+        elif window_size == 2:  # large
+            self.canvas_height = 60 * 9
+
+        self.canvas_width = int(self.canvas_height / 9 * 16)
+        self.canvas.setMinimumHeight(self.canvas_height)
+        self.canvas.setMinimumWidth(self.canvas_width)
+
 
         print('Loading...')
         self.afterGenerationConfig()
@@ -159,7 +171,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
 
     def updatePixmap(self):
-        self.img = cv2.resize(self.img, (1280, 720))
+        self.img = cv2.resize(self.img, (self.canvas_width, self.canvas_height))
         rgbImage = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                    QImage.Format_RGB888)
@@ -310,7 +322,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def cursorMoveEvent(self, event):
         x = event.x()
         y = event.y()
-        self.x_r, self.y_r = x/float(1280), y/float(720)
+        self.x_r, self.y_r = x/float(self.canvas_width), y/float(self.canvas_height)
         if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
             self.painting = False
             return
@@ -387,6 +399,7 @@ def init_args():
     parser.add_argument('--dataset_dir', type=str, help='The path of dataset', default=None)
     parser.add_argument('--user_id', type=str, default=None)
     parser.add_argument('--list_id', type=str, default=None)
+    parser.add_argument('--window_size', type=int, default=0)
     return parser.parse_args()
 
 
@@ -394,9 +407,8 @@ def init_args():
 if __name__ == "__main__":
 
     args = init_args()
-    assert args.dataset_dir is not None, print('Please specify the right path with --dataset_dir')
 
     app = QtWidgets.QApplication(sys.argv)
-    mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id)
+    mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id, args.window_size)
     mainWin.show()
     sys.exit(app.exec_())

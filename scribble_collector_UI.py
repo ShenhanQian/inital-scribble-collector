@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(1127, 827)
+        Form.resize(635, 505)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -27,8 +27,9 @@ class Ui_Form(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.canvas.sizePolicy().hasHeightForWidth())
         self.canvas.setSizePolicy(sizePolicy)
-        self.canvas.setMinimumSize(QtCore.QSize(1280, 720))
+        self.canvas.setMinimumSize(QtCore.QSize(0, 0))
         self.canvas.setCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
+        self.canvas.setMouseTracking(True)
         self.canvas.setText("")
         self.canvas.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.canvas.setObjectName("canvas")
