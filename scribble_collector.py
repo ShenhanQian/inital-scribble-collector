@@ -299,7 +299,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.labeled_seq.add(self.seq_name)
         self.saveUserJson()
-        
         self.nextSeq()
 
     def saveUserJson(self):
@@ -312,7 +311,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def err(self):
         self.error_seq.add(self.seq_name)
         self.saveUserJson()
-
+        self.nextSeq()
 
     # Callback functions
     def resizeEvent(self, event):
