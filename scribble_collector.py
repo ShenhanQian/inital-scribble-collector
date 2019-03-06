@@ -164,7 +164,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                    QImage.Format_RGB888)
 
-        # self.pixmap = QPixmap.fromImage(convertToQtFormat.scaledToHeight(, 450))
+        # self.pixmap = QPixmap.fromImage(convertToQtFormat.scaledToHeight(450))
         self.pixmap = QPixmap.fromImage(convertToQtFormat)
 
         self.canvas.setPixmap(self.pixmap)
@@ -310,6 +310,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def cursorMoveEvent(self, event):
         x = event.x()
         y = event.y()
+        self.x_r, self.y_r = x/float(self.img_W), y/float(self.img_H)
         if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
             self.painting = False
             return
@@ -317,10 +318,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if self.painting == True:
             if self.label[y, x] == self.curent_obj:
                 self.drawPoint(x, y)
-                self.cur_stroke['path'].append([x/float(self.img_W), y/float(self.img_H)])
+                self.cur_stroke['path'].append([self.x_r, self.y_r])
             else:
                 self.label_info.setText('Out of mask!')
                 self.painting = False
+        self.label_xy.setText('(%f, %f) (%d, %d)' % (self.x_r, self.y_r, x, y))
+
 
     def cursorPressEvent(self, event):
         x = event.x()
@@ -336,7 +339,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.cur_stroke = dict()
 
             self.cur_stroke['path'] = []
-            self.cur_stroke['path'].append([x/float(self.img_W), y/float(self.img_H)])
+            self.cur_stroke['path'].append([self.x_r, self.y_r])
             # self.cur_stroke['path'].append([x, y])
 
 
