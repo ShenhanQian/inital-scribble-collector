@@ -169,6 +169,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             mask = np.array(self.label == i, dtype=np.uint8) * 255
             self.mask_list.append(mask)
 
+        self.label = cv2.resize(self.label, (self.canvas_width, self.canvas_height))
+
 
     def updatePixmap(self):
         self.img = cv2.resize(self.img, (self.canvas_width, self.canvas_height))
