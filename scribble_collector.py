@@ -194,7 +194,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.canvas.setPixmap(self.pixmap)
 
     def getColor(self, idx):
-        palette = [(0, 255, 255), (255, 0, 255), (60, 60, 255), (255, 30, 30), (200, 255, 2), (0, 160, 0), (255, 100, 0)]
+        palette = [(255, 0, 255), (60, 60, 255), (255, 30, 30), (0, 255, 255), (200, 255, 2), (0, 160, 0), (255, 100, 0)]
         # 青
         # purple
         # blue
