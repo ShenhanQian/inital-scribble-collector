@@ -310,7 +310,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def cursorMoveEvent(self, event):
         x = event.x()
         y = event.y()
-        self.x_r, self.y_r = x/float(self.img_W), y/float(self.img_H)
+        self.x_r, self.y_r = x/float(1280), y/float(720)
         if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
             self.painting = False
             return
