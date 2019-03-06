@@ -375,6 +375,7 @@ def init_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_dir', type=str, help='The path of dataset', default=None)
     parser.add_argument('--user_id', type=str, default=None)
+    parser.add_argument('--user_id', type=str, default=None)
     return parser.parse_args()
 
 
