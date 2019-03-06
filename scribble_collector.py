@@ -16,6 +16,8 @@ from PIL import Image
 #         super().__init__()
 #         self.setupUi(self)
 
+# TODO: ADD DISPLAY: seq_name, list_id, remove time
+
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
     def __init__(self, dataset_dir, user_id, list_id):
