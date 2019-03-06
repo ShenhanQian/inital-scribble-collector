@@ -146,7 +146,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.img = img
         self.updatePixmap()
 
-
     def loadMask(self):
         annot_frame_path = self.annot_frame_dir + '/' +self.annot_frame_list[self.horizontalSlider.value()]
 
@@ -165,7 +164,9 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                    QImage.Format_RGB888)
 
+        # self.pixmap = QPixmap.fromImage(convertToQtFormat.scaledToHeight(, 450))
         self.pixmap = QPixmap.fromImage(convertToQtFormat)
+
         self.canvas.setPixmap(self.pixmap)
 
     def drawPoint(self, x, y):
