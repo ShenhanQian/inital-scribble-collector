@@ -12,7 +12,7 @@ import numpy as np
 
 def init_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset_dir', type=str, help='The path of DAVIS dataset', default=None)
+    parser.add_argument('--dataset_dir', type=str, help='The path of dataset', default=None)
     return parser.parse_args()
 
 def getColor(idx):
@@ -77,7 +77,7 @@ def generate_video(dataset_dir):
                         pt_x = int(img_w * pt[0])
                         pt_y = int(img_h * pt[1])
                         cv2.circle(img, (pt_x, pt_y), 2, getColor(stroke['object_id']), thickness=-1)
-                        out.write(img)
+                        # out.write(img)
             print(f'User {user_id}: Generated {seq_id}/{seq_num} in {time.time()-start_time}s')
 
             # break

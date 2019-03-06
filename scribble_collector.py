@@ -16,9 +16,6 @@ from PIL import Image
 #         super().__init__()
 #         self.setupUi(self)
 
-# TODO: ADD DISPLAY: seq_name, list_id, remove time
-
-
 class MainWindow(QtWidgets.QWidget, Ui_Form):
     def __init__(self, dataset_dir, user_id, list_id):
         super().__init__()
@@ -106,11 +103,10 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.seq_num = len(self.seq_list)
 
     def loadExistJson(self):
-        read_path = self.dataset_dir + '/Scribbles/' + self.seq_name + '/'
-        json_path = read_path + '%03d' % (int(self.user_id)) + '.json'
+        read_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
+        json_path = os.path.join(read_path, '%03d.json' % (int(self.user_id)))
 
         print('Sequence: ' + str(self.seq_idx) + '/' + str(self.seq_num))
-
 
         if os.path.exists(json_path) is True:
             with open(json_path, 'r') as file:
@@ -118,7 +114,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 info_dict = json.loads(line)
             self.labeled_seq.add(self.seq_name)
             self.nextSeq()
-            return
+            # return
 
         if self.seq_name in self.error_seq:
             self.nextSeq()
@@ -134,6 +130,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def loadImg(self):
         img_path = self.frame_dir + '/' + self.frame_list[self.horizontalSlider.value()]
         img = cv2.imread(img_path)
+
         self.img_H, self.img_W, _ = img.shape
 
         self.loadMask()
@@ -149,6 +146,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.img = img
         self.updatePixmap()
 
+
     def loadMask(self):
         annot_frame_path = self.annot_frame_dir + '/' +self.annot_frame_list[self.horizontalSlider.value()]
 
@@ -162,11 +160,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
 
     def updatePixmap(self):
+        self.img = cv2.resize(self.img, (1280, 720))
         rgbImage = cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB)
         convertToQtFormat = QImage(rgbImage.data, rgbImage.shape[1], rgbImage.shape[0],
                                    QImage.Format_RGB888)
-        self.pixmap = QPixmap.fromImage(convertToQtFormat)
 
+        self.pixmap = QPixmap.fromImage(convertToQtFormat)
         self.canvas.setPixmap(self.pixmap)
 
     def drawPoint(self, x, y):
@@ -225,13 +224,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
 # User Interface
     def nextSeq(self):
-
         if self.seq_idx < self.seq_num - 1:
             self.seq_idx += 1
+            # print(self.seq_idx)
             self.selectSeq()
         else:
             self.label_seq.setText(
                 'Sequence: ' + str(len(self.labeled_seq) + len(self.error_seq)) + '/' + str(self.seq_num))
+            self.saveUserJson()
             self.destroy(True)
             print('Congratulations! Mission Complete!')
             sys.exit()
@@ -285,24 +285,26 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             json.dump(self.scribbles, f)
 
         self.labeled_seq.add(self.seq_name)
-        with open(self.user_json_path, 'w') as f:
-            self.user_dict['Labeled Sequences'] = list(self.labeled_seq)
-            json.dump(self.user_dict, f)
+        self.saveUserJson()
         
         self.nextSeq()
 
+    def saveUserJson(self):
+        with open(self.user_json_path, 'w') as f:
+            self.user_dict['Labeled Sequences'] = list(self.labeled_seq)
+            self.user_dict['Error Sequences'] = list(self.error_seq)
+
+            json.dump(self.user_dict, f)
+
     def err(self):
         self.error_seq.add(self.seq_name)
-        with open(self.user_json_path, 'w') as f:
-            self.user_dict['Error Sequences'] = list(self.error_seq)
-            json.dump(self.user_dict, f)
-        self.nextSeq()
+        self.saveUserJson()
 
 
     # Callback functions
     def resizeEvent(self, event):
         pass
-        # self.updatePixmap()
+        self.updatePixmap()
 
     def cursorMoveEvent(self, event):
         x = event.x()
