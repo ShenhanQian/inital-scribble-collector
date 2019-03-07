@@ -31,11 +31,10 @@ def getColor(idx):
     return palette[idx]
 
 def generate_video(dataset_dir):
-    """
-    :param json_path:
-    """
     # scribble_dir = os.path.join(dataset_dir, 'Scribbles')
     # image_dir = os.path.join(dataset_dir, 'JPEGImages',)
+
+    user_id_list = [7]
 
     scribble_dir = os.path.join(dataset_dir, 'temp', 'Scribbles')
     image_dir = os.path.join(dataset_dir, 'JPEGImages',)
@@ -46,7 +45,7 @@ def generate_video(dataset_dir):
     seq_list = np.sort(os.listdir(scribble_dir))
     seq_num = len(seq_list)
 
-    for user_id in range(6, 7):
+    for user_id in user_id_list:
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter('scribbles_%03d.avi' % user_id, fourcc, 400.0, (960, 540))
         # fourcc = cv2.VideoWriter_fourcc(*'H264')

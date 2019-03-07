@@ -282,7 +282,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def save(self):
         '''save all the stroke in the current frame'''
-        if len(self.labeled_obj) < self.obj_num:
+        if len(set(self.labeled_obj)) < self.obj_num:
             self.label_info.setText('Labeling not complete!')
             return
 
