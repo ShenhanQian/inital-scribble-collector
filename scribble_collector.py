@@ -43,7 +43,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if window_size == 0:  # normal
             self.canvas_height = 60 * 12
         elif window_size == 1:  # normal
-            self.canvas_height = 60 * 15  # 60*21
+            self.canvas_height = 60 * 21
         elif window_size == 2:  # large
             self.canvas_height = 60 * 9
 
