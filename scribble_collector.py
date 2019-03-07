@@ -59,6 +59,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.user_dict = dict()
         self.labeled_seq = set()
         self.seq_idx = 0
+        self.repaint = False
         self.loadSeqList()
         self.loadUserJson()
 
@@ -68,7 +69,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.canvas.mousePressEvent = self.cursorPressEvent
         self.canvas.mouseReleaseEvent = self.cursorReleaseEvent
         #
-        self.pushButton_rst.clicked.connect(self.reset)
+        self.pushButton_undo.clicked.connect(self.undo)
         self.pushButton_save.clicked.connect(self.save)
         self.pushButton_err.clicked.connect(self.err)
 
@@ -184,6 +185,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.canvas.setPixmap(self.pixmap)
 
+
+
     def drawPoint(self, x, y):
         pen = QPen(QtCore.Qt.green)
         brush = QBrush(QtCore.Qt.green)
@@ -191,8 +194,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         painter = QPainter(self.pixmap)
         painter.setPen(pen)
         painter.setBrush(brush)
+
         painter.drawEllipse(x, y, 3, 3)
         self.canvas.setPixmap(self.pixmap)
+
+
 
     def getColor(self, idx):
         palette = [(255, 0, 255), (60, 60, 255), (255, 30, 30), (0, 255, 255), (200, 255, 2), (0, 160, 0), (255, 100, 0)]
@@ -263,9 +269,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def lastFrame(self):
         self.horizontalSlider.setValue(self.horizontalSlider.value() - 1)
 
-    def delete(self):
+    def undo(self):
         '''remove the last stroke'''
-        pass
+        self.repaint = True
+        if len(self.stroke_list) > 0:
+            self.stroke_list.pop(-1)
+        self.reset()
 
     def reset(self):
         '''remove all the scribbles'''
@@ -276,7 +285,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.init_time = None
         self.labeled_obj = []
         self.scribbles = {'scribbles': [], 'sequence': self.seq_name}
-        self.stroke_list = []
+
+        if self.repaint == False:
+            self.stroke_list = []
+        else:
+            self.paintStrokes()
+            self.repaint = False
         self.label_info.setText('')
 
     def save(self):
@@ -316,6 +330,13 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.error_seq.add(self.seq_name)
         self.saveUserJson()
         self.nextSeq()
+
+    def paintStrokes(self):
+        for stroke in self.stroke_list:
+            for pt in stroke['path']:
+                x = int(pt[0] * self.canvas_width)
+                y = int(pt[1] * self.canvas_height)
+                self.drawPoint(x, y)
 
     # Callback functions
     def resizeEvent(self, event):
@@ -383,7 +404,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if QKeyEvent.key() == QtCore.Qt.Key_Space:
             self.save()
         elif QKeyEvent.key() == QtCore.Qt.Key_R:
-            self.reset()
+            self.undo()
         elif QKeyEvent.key() == QtCore.Qt.Key_A:
             self.lastFrame()
         elif QKeyEvent.key() == QtCore.Qt.Key_D:
