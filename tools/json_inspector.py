@@ -67,39 +67,6 @@ def inspect_json(scribbles_dir, image_dir):
     print('%d users in total.' % user_num)
     print(user_label_stat)
 
-
-
-    # scribbles_dir, json_name = ops.split(scribbles_dir)
-    # seq_name = scribbles_dir.rsplit('\\')[-1]
-    # frame_idx = []
-    #
-
-
-    # print('frame:', frame_idx)
-
-    # image_path = os.path.join(image_dir, seq_name,'%05d.jpg' %frame_idx)
-    #
-    # print(image_path)
-
-    # img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-    # img_h, img_w, _ = img.shape
-
-    # print('size:', img_h, img_w)
-    # cv2.imshow('0', img)
-
-    # for idx, stroke in enumerate(scribbles):
-    #     for pt in stroke['path']:
-    #         pt_x = int(img_w * pt[0])
-    #         pt_y = int(img_h * pt[1])
-    #         cv2.circle(img, (pt_x, pt_y), 1, (0,255,0))
-    #         cv2.imshow('0', img)
-    #         cv2.waitKey(1)
-    #
-    #
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-
 if __name__ == '__main__':
     args = init_args()
     inspect_json(args.scribbles_dir, args.image_dir)

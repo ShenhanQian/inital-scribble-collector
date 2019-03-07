@@ -34,7 +34,10 @@ def generate_video(dataset_dir):
     """
     :param json_path:
     """
-    scribble_dir = os.path.join(dataset_dir, 'Scribbles')
+    # scribble_dir = os.path.join(dataset_dir, 'Scribbles')
+    # image_dir = os.path.join(dataset_dir, 'JPEGImages',)
+
+    scribble_dir = os.path.join(dataset_dir, 'temp', 'Scribbles')
     image_dir = os.path.join(dataset_dir, 'JPEGImages',)
 
     assert ops.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
@@ -43,18 +46,18 @@ def generate_video(dataset_dir):
     seq_list = np.sort(os.listdir(scribble_dir))
     seq_num = len(seq_list)
 
-    for user_id in range(7, 8):
+    for user_id in range(6, 7):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter('scribbles_%03d.avi' % user_id, fourcc, 400.0, (960, 540))
         # fourcc = cv2.VideoWriter_fourcc(*'H264')
         # out = cv2.VideoWriter('scribbles_%03d.mp4' % user_id, fourcc, 90.0, (854, 480))
+
         for seq_id, seq_name in enumerate(seq_list):
             if seq_name[-5:] == '.json':
                 continue
             start_time = time.time()
             json_path = os.path.join(scribble_dir, seq_name, '%03d.json' % user_id)
             assert os.path.exists(json_path), f'{json_path} not exsit.'
-
 
             frame_list = np.sort(os.listdir(os.path.join(image_dir, seq_name)))
 
@@ -68,8 +71,8 @@ def generate_video(dataset_dir):
                         frame_idx = idx
                         scribbles = frame
 
+            print(seq_name)
             image_path = os.path.join(image_dir, seq_name, frame_list[frame_idx])
-            # print(image_path)
 
             img = cv2.imread(image_path)
             img = cv2.resize(img, (960, 540))
@@ -84,6 +87,7 @@ def generate_video(dataset_dir):
                         pt_x = int(img_w * pt[0])
                         pt_y = int(img_h * pt[1])
                         cv2.circle(img, (pt_x, pt_y), 2, getColor(stroke['object_id']), thickness=-1)
+                        cv2.putText(img, seq_name, (10, 30), 1, 2, (0, 255, 0))
                         # cv2.imshow('0', img)
                         out.write(img)
                         # cv2.waitKey(1)

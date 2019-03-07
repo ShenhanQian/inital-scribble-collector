@@ -144,6 +144,9 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         img = cv2.imread(img_path)
 
         self.img_H, self.img_W, _ = img.shape
+        if self.img_H != 720 and self.img_W != 1280:
+            print('Incorrect image size! Skipped.')
+            self.err()
 
         self.loadMask()
 
