@@ -274,6 +274,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.loadImg()
         self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()) + '/' + str(self.frame_nums))
 
+        self.painting = False
         self.init_time = None
         self.labeled_obj = []
         self.scribbles = {'scribbles': [], 'sequence': self.seq_name}
@@ -355,6 +356,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.cur_stroke = dict()
 
             self.cur_stroke['path'] = []
+            self.drawPoint(x, y)
             self.cur_stroke['path'].append([self.x_r, self.y_r])
             # self.cur_stroke['path'].append([x, y])
 
