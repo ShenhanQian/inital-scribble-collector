@@ -40,10 +40,10 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             os.makedirs(error_json_dir)
         self.user_json_path = os.path.join(error_json_dir, '%03d_log_%02d.json' % (int(self.user_id), int(self.list_id)))
 
-        if window_size == 0:  # small
+        if window_size == 0:  # normal
             self.canvas_height = 60 * 12
         elif window_size == 1:  # normal
-            self.canvas_height = 60 * 15
+            self.canvas_height = 60 * 15  # 60*21
         elif window_size == 2:  # large
             self.canvas_height = 60 * 9
 
@@ -95,6 +95,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.loadExistJson()
         self.loadMetaJson()
+
+        self.annot_frame_dir = self.annot_dir + '/' + self.seq_name
+        self.annot_frame_list = np.sort(os.listdir(self.annot_frame_dir))
+        self.annot_frame_nums = len(self.frame_list)
+
         self.reset()
 
     def loadUserJson(self):
@@ -131,7 +136,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if self.seq_name in self.error_seq:
             self.nextSeq()
 
-
     def loadMetaJson(self):
         meta_json_path = self.dataset_dir + '/meta.json'
         with open(meta_json_path, 'r') as f:
@@ -144,7 +148,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         img = cv2.imread(img_path)
 
         self.img_H, self.img_W, _ = img.shape
-        if self.img_H != 720 and self.img_W != 1280:
+        if self.img_H != 720 or self.img_W != 1280:
             print('Incorrect image size! Skipped.')
             self.err()
 
@@ -162,7 +166,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.updatePixmap()
 
     def loadMask(self):
-        annot_frame_path = self.annot_frame_dir + '/' +self.annot_frame_list[self.horizontalSlider.value()]
+        annot_frame_path = os.path.join(self.annot_frame_dir, self.annot_frame_list[self.horizontalSlider.value()])
 
         self.label = Image.open(annot_frame_path)
         self.label = np.array(self.label, dtype=np.uint8)
@@ -328,7 +332,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         x = event.x()
         y = event.y()
         self.x_r, self.y_r = x/float(self.canvas_width), y/float(self.canvas_height)
-        if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
+        if x<0 or x>= self.canvas_width or y<0 or y>= self.canvas_height:
             self.painting = False
             return
 
@@ -346,7 +350,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         x = event.x()
         y = event.y()
 
-        if x<0 or x>= self.img_W or y<0 or y>= self.img_H:
+        if x<0 or x>= self.canvas_width or y<0 or y>= self.canvas_height:
             return
 
         if self.label[y, x] != 0:
