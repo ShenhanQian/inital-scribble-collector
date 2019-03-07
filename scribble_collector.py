@@ -96,10 +96,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.loadExistJson()
         self.loadMetaJson()
 
-        self.annot_frame_dir = self.annot_dir + '/' + self.seq_name
-        self.annot_frame_list = np.sort(os.listdir(self.annot_frame_dir))
-        self.annot_frame_nums = len(self.frame_list)
-
         self.reset()
 
     def loadUserJson(self):
@@ -148,16 +144,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         img = cv2.imread(img_path)
 
         self.img_H, self.img_W, _ = img.shape
-        if self.img_H != 720 or self.img_W != 1280:
-            print('Incorrect image size! Skipped.')
-            self.err()
 
         self.loadMask()
-
         for idx, mask in enumerate(self.mask_list):
             inv_mask = cv2.bitwise_not(mask)
             c_img = self.getBlank(img.shape[1], img.shape[0], self.getColor(idx))
             fg = cv2.addWeighted(img, 0.6, c_img, 0.4, 0)
+            # print(mask.shape)
+            # print(fg.shape)
             fg = cv2.bitwise_and(fg, fg, mask=mask)
             bg = cv2.bitwise_and(img, img, mask=inv_mask)
             img = cv2.add(fg, bg)
