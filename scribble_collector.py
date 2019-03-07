@@ -271,27 +271,33 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def undo(self):
         '''remove the last stroke'''
-        self.repaint = True
-        if len(self.stroke_list) > 0:
+        if len(self.stroke_list) > 1:
             self.stroke_list.pop(-1)
-        self.reset()
+            self.repaint = True
+            self.reset()
+        elif len(self.stroke_list) == 1:
+            self.stroke_list.pop(-1)
+            self.reset()
+
 
     def reset(self):
         '''remove all the scribbles'''
         self.loadImg()
-        self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()) + '/' + str(self.frame_nums))
-
-        self.painting = False
-        self.init_time = None
-        self.labeled_obj = []
-        self.scribbles = {'scribbles': [], 'sequence': self.seq_name}
-
         if self.repaint == False:
             self.stroke_list = []
+            self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()) + '/' + str(self.frame_nums))
+
+            self.painting = False
+            self.init_time = None
+            self.labeled_obj = []
+            self.scribbles = {'scribbles': [], 'sequence': self.seq_name}
+
+            self.label_info.setText('')
         else:
             self.paintStrokes()
             self.repaint = False
-        self.label_info.setText('')
+
+
 
     def save(self):
         '''save all the stroke in the current frame'''
@@ -332,11 +338,20 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.nextSeq()
 
     def paintStrokes(self):
+        pen = QPen(QtCore.Qt.green)
+        brush = QBrush(QtCore.Qt.green)
+
+        painter = QPainter(self.pixmap)
+        painter.setPen(pen)
+        painter.setBrush(brush)
+
         for stroke in self.stroke_list:
             for pt in stroke['path']:
                 x = int(pt[0] * self.canvas_width)
                 y = int(pt[1] * self.canvas_height)
-                self.drawPoint(x, y)
+                # self.drawPoint(x, y)
+                painter.drawEllipse(x, y, 3, 3)
+        self.canvas.setPixmap(self.pixmap)
 
     # Callback functions
     def resizeEvent(self, event):
@@ -358,6 +373,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             else:
                 self.label_info.setText('Out of mask!')
                 self.painting = False
+                self.cur_stroke['end_time'] = int(time.time() * 1000) - self.init_time
+                self.stroke_list.append(self.cur_stroke)
         self.label_xy.setText('(%f, %f) (%d, %d)' % (self.x_r, self.y_r, x, y))
 
 
