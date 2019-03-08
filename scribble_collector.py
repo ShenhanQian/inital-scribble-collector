@@ -450,7 +450,7 @@ def init_args():
     parser.add_argument('--user_id', type=str, default=None)
     parser.add_argument('--list_id', type=str, default=None)
     parser.add_argument('--window_size', type=int, default=0)
-    parser.add_argument('--debug', type=bool, default=True)
+    parser.add_argument('--debug', type=bool, default=False)
     return parser.parse_args()
 
 
