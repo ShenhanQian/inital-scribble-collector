@@ -32,6 +32,9 @@ def getColor(idx):
 
 def generate_video(image_dir, scribble_dir, user_id, list_id):
 
+    assert user_id is not None
+    assert list_id is not None
+
     meta_json_path = os.path.join(image_dir,'..', 'meta.json')  # read meta.json
     with open(meta_json_path, 'r') as f1:
         info_json = json.load(f1)
@@ -75,7 +78,7 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
                 frame_labeled.append(frame)
                 frame_idx = idx
 
-        assert len(frame_labeled) == 1, 'Only one frame should be labeled.'
+        assert len(frame_labeled) == 1, '%s: Number of labeled frame is %d rather than 1' % (seq_name, len(frame_labeled))
         scribbles = frame_labeled[0]
 
 
@@ -134,8 +137,8 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
 if __name__ == '__main__':
     args = init_args()
     args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-    args.user_id = 3
-    args.list_id = 4
+    # args.user_id = 3
+    # args.list_id = 4
 
     # scribble_dir = os.path.join(dataset_dir, 'temp', 'Scribbles')
     scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')

@@ -61,8 +61,8 @@ def inspect_json(scribble_dir, user_id, list_id):
 if __name__ == '__main__':
     args = init_args()
 
-    user_id = 7
-    list_id = 4
+    user_id = 3
+    list_id = 7
     json_name = '%03d_log_%02d.json' % (user_id, list_id)
     args.seq_list_path = os.path.join('..', 'sequences', 'sequences_%02d.txt' % list_id)
     # args.user_json_path = os.path.join('..', '..', 'dataset', 'Youtube-VOS', 'temp', 'Scribbles', json_name)
