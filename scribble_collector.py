@@ -465,11 +465,11 @@ if __name__ == "__main__":
 
     args = init_args()
 
-    args.dataset_dir = os.path.join('E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS')
-    args.user_id = 7
-    args.list_id = 5
-    args.window_size = 0
-    args.debug =True
+    # args.dataset_dir = os.path.join('E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS')
+    # args.user_id = 7
+    # args.list_id = 5
+    # args.window_size = 0
+    # args.debug =True
 
     app = QtWidgets.QApplication(sys.argv)
     mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id, args.window_size, args.debug)

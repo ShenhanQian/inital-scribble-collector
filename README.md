@@ -2,21 +2,6 @@
 
 We have 1,000 video sequences to be labeled. We divide these sequences into 10 lists, i.e., each list contains 100 video sequences. 
 
-## Task 
-List ID | Jia 1 | Xianing 2 | Jiale 3 | Lei 6 | Shenhan 7
-:---:|:---:|:---:|:---:|:---:|:---:|
-1       |O|O|#||
-2       |||O|O|O
-3       |||O||#
-4       |||O||O
-5       |||O||O
-6       |||O||O
-7       |||||
-8       |||||
-9       |||||
-10     |||||
-11     |||||
-
 ## Download Dataset 
 You can download Youtube-VOS dataset [here](http://10.19.124.26:8000/d/f274b8e2c98649b2b575/).
 
