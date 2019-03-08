@@ -17,9 +17,11 @@ from PIL import Image
 #         self.setupUi(self)
 
 class MainWindow(QtWidgets.QWidget, Ui_Form):
-    def __init__(self, dataset_dir, user_id, list_id, window_size):
+    def __init__(self, dataset_dir, user_id, list_id, window_size, debug):
         super().__init__()
         self.setupUi(self)
+
+        self.debug = debug
 
         self.dataset_dir = dataset_dir
         self.seq_dir = os.path.join(self.dataset_dir, 'JPEGImages')
@@ -34,7 +36,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         assert self.list_id is not None, print('Error with list id')
         self.label_list.setText('List: %d    User: %d' % (int(self.list_id), int(self.user_id)))
 
-        error_json_dir = os.path.join(self.dataset_dir, 'Scribbles', )
+        if self.debug == False:
+            error_json_dir = os.path.join(self.dataset_dir, 'Scribbles', )
+        else:
+            error_json_dir = os.path.join(self.dataset_dir, 'temp', 'Scribbles', )
+
 
         if os.path.exists(error_json_dir) is False:
             os.makedirs(error_json_dir)
@@ -117,7 +123,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.seq_num = len(self.seq_list)
 
     def loadExistJson(self):
-        read_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
+        if self.debug == False:
+            read_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
+        else:
+            read_path = os.path.join(self.dataset_dir, 'temp', 'Scribbles', self.seq_name)
+
         json_path = os.path.join(read_path, '%03d.json' % (int(self.user_id)))
 
         print('Sequence: ' + str(self.seq_idx) + '/' + str(self.seq_num))
@@ -194,11 +204,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         painter = QPainter(self.pixmap)
         painter.setPen(pen)
         painter.setBrush(brush)
-
         painter.drawEllipse(x, y, 3, 3)
         self.canvas.setPixmap(self.pixmap)
-
-
 
     def getColor(self, idx):
         palette = [(255, 0, 255), (60, 60, 255), (255, 30, 30), (0, 255, 255), (200, 255, 2), (0, 160, 0), (255, 100, 0)]
@@ -297,15 +304,16 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.paintStrokes()
             self.repaint = False
 
-
-
     def save(self):
         '''save all the stroke in the current frame'''
         if len(set(self.labeled_obj)) < self.obj_num:
             self.label_info.setText('Labeling not complete!')
             return
 
-        output_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
+        if self.debug == False:
+            output_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
+        else:
+            output_path = os.path.join(self.dataset_dir, 'temp', 'Scribbles', self.seq_name)
 
         if os.path.exists(output_path) is False:
             os.makedirs(output_path)
@@ -442,6 +450,7 @@ def init_args():
     parser.add_argument('--user_id', type=str, default=None)
     parser.add_argument('--list_id', type=str, default=None)
     parser.add_argument('--window_size', type=int, default=0)
+    parser.add_argument('--debug', type=bool, default=True)
     return parser.parse_args()
 
 
@@ -451,6 +460,6 @@ if __name__ == "__main__":
     args = init_args()
 
     app = QtWidgets.QApplication(sys.argv)
-    mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id, args.window_size)
+    mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id, args.window_size, args.debug)
     mainWin.show()
     sys.exit(app.exec_())
