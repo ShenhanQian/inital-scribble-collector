@@ -137,6 +137,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 line = file.readline()
                 info_dict = json.loads(line)
             self.labeled_seq.add(self.seq_name)
+            self.saveUserJson()
             self.nextSeq()
             # return
 
@@ -370,7 +371,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         x = event.x()
         y = event.y()
         self.x_r, self.y_r = x/float(self.canvas_width), y/float(self.canvas_height)
+
         if x<0 or x>= self.canvas_width or y<0 or y>= self.canvas_height:
+            if self.painting == True:
+                self.label_info.setText('Out of mask!')
+                self.cur_stroke['end_time'] = int(time.time() * 1000) - self.init_time
+                self.stroke_list.append(self.cur_stroke)
             self.painting = False
             return
 
@@ -458,6 +464,12 @@ def init_args():
 if __name__ == "__main__":
 
     args = init_args()
+
+    args.dataset_dir = os.path.join('E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS')
+    args.user_id = 3
+    args.list_id = 2
+    args.window_size = 0
+    args.debug =True
 
     app = QtWidgets.QApplication(sys.argv)
     mainWin = MainWindow(args.dataset_dir, args.user_id, args.list_id, args.window_size, args.debug)

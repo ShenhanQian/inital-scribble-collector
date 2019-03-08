@@ -1,7 +1,7 @@
 import argparse
 import json
 import os
-import os.path as ops
+import shutil
 import time
 import json_absence_check
 
@@ -42,8 +42,10 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
     with open(user_json_path, 'r') as f2:
         line = f2.readline()
         info_dict = json.loads(line)
-    wrong_seq = set(info_dict['Error Sequences'])
-    labeled_seq = set(info_dict['Labeled Sequences'])
+    wrong_seq = info_dict['Error Sequences']
+    # wrong_seq = set(info_dict['Error Sequences'])
+    labeled_seq = info_dict['Labeled Sequences']
+    # labeled_seq = set(info_dict['Labeled Sequences'])
     seq_num = len(labeled_seq)
 
     fourcc = cv2.VideoWriter_fourcc(*'XVID')  # start to generate video
@@ -109,27 +111,38 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
         meta_obj_num = len(meta_dict[seq_name]['objects'])
         lbled_obj_num = len(set(obj_list))
         if lbled_obj_num != meta_obj_num:
-            print('   Object number error: %d/%d', meta_obj_num, lbled_obj_num)
+            print('   Object number error: %d/%d' %(meta_obj_num, lbled_obj_num))
             err_seq_list.append(seq_id)
-        # break
 
     # cv2.destroyAllWindows()
     if len(err_seq_list) != 0:
-        print('Not complete sequences:')
-        print(err_seq_list)
+        print('Inomplete sequences:')
+        for idx in err_seq_list:
+            print(idx, labeled_seq[idx])
+        op = input('Delete incomplete scribble? (Y/N)')
+        if op == 'Y':
+            for err_seq_id in err_seq_list:
+                item_path = os.path.join(scribble_dir, labeled_seq[err_seq_id])
+                shutil.rmtree(item_path)
+            print('Incomplete scribbles cleared!')
+        else:
+            print('Remain not processed.')
+
+    else:
+        print('   Object number checking pass.')
 
 if __name__ == '__main__':
     args = init_args()
     args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-    args.user_id = 7
+    args.user_id = 3
     args.list_id = 4
 
     # scribble_dir = os.path.join(dataset_dir, 'temp', 'Scribbles')
     scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')
     image_dir = os.path.join(args.dataset_dir, 'JPEGImages', )
 
-    assert ops.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
-    assert ops.exists(image_dir), '{:s} not exist'.format(image_dir)
+    assert os.path.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
+    assert os.path.exists(image_dir), '{:s} not exist'.format(image_dir)
 
 
     generate_video(image_dir, scribble_dir, args.user_id, args.list_id)
