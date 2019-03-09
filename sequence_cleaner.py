@@ -23,12 +23,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
         self.user_id = user_id
         self.debug = debug
-
         self.dataset_dir = dataset_dir
-        self.seq_dir = os.path.join(self.dataset_dir, 'JPEGImages')
-        assert os.path.exists(self.seq_dir), 'Error with dataset_dir: JPEGImages dir not exist'
-        self.annot_dir = os.path.join(self.dataset_dir, 'CleanedAnnotations')
-        assert os.path.exists(self.seq_dir), 'Error with dataset_dir: CleanedAnnotations dir not exist'
 
         if window_size == 0:  # normal
             self.canvas_height = 60 * 12
@@ -68,6 +63,16 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.selectSeq()
 
     def selectSeq(self):
+        if self.list_idx <= 35:
+            self.seq_dir = os.path.join(self.dataset_dir,'train', 'JPEGImages')
+            self.annot_dir = os.path.join(self.dataset_dir,'train', 'CleanedAnnotations')
+        else:
+            self.seq_dir = os.path.join(self.dataset_dir, 'val', 'JPEGImages')
+            self.annot_dir = os.path.join(self.dataset_dir, 'val', 'CleanedAnnotations')
+
+        assert os.path.exists(self.seq_dir), 'Error with dataset_dir: JPEGImages dir not exist'
+        assert os.path.exists(self.seq_dir), 'Error with dataset_dir: CleanedAnnotations dir not exist'
+
         self.label_list.setText('List: %d' % self.list_idx)
 
         self.painting = False
@@ -135,7 +140,11 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.seq_num = len(self.seq_list)
 
     def loadMetaJson(self):
-        meta_json_path = self.dataset_dir + '/meta.json'
+        if self.list_idx <= 35:
+            meta_json_path = os.path.join(self.dataset_dir,'train', 'meta.json')
+        else:
+            meta_json_path = os.path.join(self.dataset_dir,'val', 'meta.json')
+
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
 
