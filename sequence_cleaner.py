@@ -63,15 +63,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.selectSeq()
 
     def selectSeq(self):
-        if self.list_idx <= 35:
-            self.seq_dir = os.path.join(self.dataset_dir,'train', 'JPEGImages')
-            self.annot_dir = os.path.join(self.dataset_dir,'train', 'CleanedAnnotations')
-        else:
-            self.seq_dir = os.path.join(self.dataset_dir, 'val', 'JPEGImages')
-            self.annot_dir = os.path.join(self.dataset_dir, 'val', 'CleanedAnnotations')
+        self.seq_dir = os.path.join(self.dataset_dir,'train', 'JPEGImages')
+        self.annot_dir = os.path.join(self.dataset_dir,'train', 'CleanedAnnotations')
+
 
         assert os.path.exists(self.seq_dir), 'Error with dataset_dir: JPEGImages dir not exist'
-        assert os.path.exists(self.seq_dir), 'Error with dataset_dir: CleanedAnnotations dir not exist'
+        assert os.path.exists(self.annot_dir), 'Error with dataset_dir: CleanedAnnotations dir not exist'
 
         self.label_list.setText('List: %d' % self.list_idx)
 
@@ -85,12 +82,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.label_seq.setText('Sequence: ' + str(self.seq_idx + 1) + '/' + str(self.seq_num)
                                + f' ({new_list_len})' + f' {self.seq_name}')
 
-        self.frame_dir = self.seq_dir + '/' + self.seq_name
+        self.frame_dir = os.path.join(self.seq_dir, self.seq_name)
         self.frame_list = np.sort(os.listdir(self.frame_dir))
         self.frame_nums = len(self.frame_list)
         self.horizontalSlider.setMaximum(self.frame_nums - 1)
 
-        self.annot_frame_dir = self.annot_dir + '/' + self.seq_name
+        self.annot_frame_dir = os.path.join(self.annot_dir, self.seq_name)
         self.annot_frame_list = np.sort(os.listdir(self.annot_frame_dir))
         self.annot_frame_nums = len(self.frame_list)
 
@@ -140,10 +137,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.seq_num = len(self.seq_list)
 
     def loadMetaJson(self):
-        if self.list_idx <= 35:
-            meta_json_path = os.path.join(self.dataset_dir,'train', 'meta.json')
-        else:
-            meta_json_path = os.path.join(self.dataset_dir,'val', 'meta.json')
+        meta_json_path = os.path.join(self.dataset_dir,'train', 'meta.json')
 
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
@@ -152,7 +146,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.label_obj.setText('Obj Number: ' + str(self.obj_num))
 
     def loadImg(self):
-        img_path = self.frame_dir + '/' + self.frame_list[self.horizontalSlider.value()]
+        img_path = os.path.join(self.frame_dir, self.frame_list[self.horizontalSlider.value()])
         img = cv2.imread(img_path)
 
         self.img_H, self.img_W, _ = img.shape
@@ -171,7 +165,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
 
     def loadMask(self):
         annot_frame_path = os.path.join(self.annot_frame_dir, self.annot_frame_list[self.horizontalSlider.value()])
-
         self.label = Image.open(annot_frame_path)
         self.label = np.array(self.label, dtype=np.uint8)
 
@@ -240,14 +233,14 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         if self.list_idx > 1:
             self.list_idx -= 1
             self.seq_list = self.raw_seqs_dict[str(self.list_idx)]
-            self.seq_idx = 99
+            self.seq_idx = 0
             self.seq_name = self.seq_list[self.seq_idx]
             self.seq_num = len(self.seq_list)
             self.saveStep()
             self.selectSeq()
 
     def nextList(self):
-        if self.list_idx < self.list_num - 1:
+        if self.list_idx < self.list_num:
             self.list_idx += 1
             self.seq_list = self.raw_seqs_dict[str(self.list_idx)]
             self.seq_idx = 0
@@ -293,6 +286,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def resetFrame(self):
         '''remove all the scribbles'''
         self.loadImg()
+
         if self.repaint == False:
             self.stroke_list = []
             self.label_frame.setText('Frame: ' + str(self.horizontalSlider.value()) + '/' + str(self.frame_nums))
