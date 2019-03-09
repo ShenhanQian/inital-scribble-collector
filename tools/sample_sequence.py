@@ -25,12 +25,22 @@ if __name__ == '__main__':
     print(len(train_seqs))
 
     for i in range(len(train_seqs) // num_seqs + 1):
-        if len(train_seqs) < num_seqs:
-            random_seqs = train_seqs
-        else:
-            random_seqs = random.sample(train_seqs, num_seqs)
+        path = '../sequences/sequences_{:02d}.txt'.format(i + 1)
+
+        if os.path.exists(path):
+            with open(path) as f:
+                random_seqs = f.readlines()
+            random_seqs = [line.strip() for line in random_seqs]
+
             train_seqs = set(train_seqs) - set(random_seqs)
             train_seqs = list(train_seqs)
+        else:
+            if len(train_seqs) < num_seqs:
+                random_seqs = train_seqs
+            else:
+                random_seqs = random.sample(train_seqs, num_seqs)
+                train_seqs = set(train_seqs) - set(random_seqs)
+                train_seqs = list(train_seqs)
 
         seqs_list[i + 1] = random_seqs
 
