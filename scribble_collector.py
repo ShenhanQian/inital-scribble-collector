@@ -114,12 +114,12 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.error_seq = set()
 
     def loadSeqList(self):
-        txt_path = './sequences/sequences_%02d.txt' % int(self.list_id)
-        assert os.path.exists(txt_path), txt_path
+        json_path = os.path.join('.', 'tools', 'sequences.json')
+        assert os.path.exists(json_path), '%s not exists!' % json_path
 
-        with open(txt_path, 'r') as file:
-            self.seq_list = file.readlines()
-        self.seq_list = [i.rstrip() for i in self.seq_list]
+        with open(json_path, 'r') as file:
+            seqs_json = json.load(file)
+        self.seq_list = seqs_json[str(self.list_id)]
         self.seq_num = len(self.seq_list)
 
     def loadExistJson(self):
