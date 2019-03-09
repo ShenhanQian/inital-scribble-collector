@@ -389,7 +389,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
                 self.painting = False
                 self.cur_stroke['end_time'] = int(time.time() * 1000) - self.init_time
                 self.stroke_list.append(self.cur_stroke)
-        self.label_xy.setText('(%f, %f) (%d, %d)' % (self.x_r, self.y_r, x, y))
+        self.label_xy.setText('(%.3f, %.3f) (%4d, %4d) %d' % (self.x_r, self.y_r, x, y, self.label[y, x]))
 
 
     def cursorPressEvent(self, event):
