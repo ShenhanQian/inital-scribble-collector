@@ -102,7 +102,7 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
                 cv2.putText(img, str(seq_id) + seq_name, (10, 30), 1, 2, (0, 255, 0))
 
                 '''write video'''
-                # out.write(img)
+                out.write(img)
                 '''Count labeled object number'''
                 obj_list.append(stroke['object_id'])
                 # cv2.imshow('0', img)
@@ -136,13 +136,13 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
 
 if __name__ == '__main__':
     args = init_args()
-    args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-    # args.user_id = 3
-    # args.list_id = 4
+    args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS/'
+    args.user_id = 9
+    args.list_id = 5
 
-    # scribble_dir = os.path.join(dataset_dir, 'temp', 'Scribbles')
-    scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')
-    image_dir = os.path.join(args.dataset_dir, 'JPEGImages', )
+    scribble_dir = os.path.join(args.dataset_dir, 'temp', 'Scribbles')
+    # scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')
+    image_dir = os.path.join(args.dataset_dir,'train', 'JPEGImages', )
 
     assert os.path.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
     assert os.path.exists(image_dir), '{:s} not exist'.format(image_dir)

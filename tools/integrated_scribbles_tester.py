@@ -20,8 +20,8 @@ def init_args():
 if __name__ == '__main__':
     args = init_args()
     args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-    args.user_id = 3
-    args.list_id = 7
+    args.user_id = 9
+    args.list_id = 5
     args.debug = True
 
     if args.debug == True:
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     else:
         scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')
 
-    image_dir = os.path.join(args.dataset_dir, 'JPEGImages', )
+    image_dir = os.path.join(args.dataset_dir,'train', 'JPEGImages', )
 
     assert os.path.exists(scribble_dir), '{:s} not exist'.format(scribble_dir)
     assert os.path.exists(image_dir), '{:s} not exist'.format(image_dir)

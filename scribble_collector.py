@@ -24,9 +24,9 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.debug = debug
 
         self.dataset_dir = dataset_dir
-        self.seq_dir = os.path.join(self.dataset_dir, 'JPEGImages')
+        self.seq_dir = os.path.join(self.dataset_dir, 'train', 'JPEGImages')
         assert os.path.exists(self.seq_dir), print('Error with dataset_dir: Jpeg not exist')
-        self.annot_dir = os.path.join(self.dataset_dir, 'CleanedAnnotations')
+        self.annot_dir = os.path.join(self.dataset_dir, 'train', 'CleanedAnnotations')
         assert os.path.exists(self.seq_dir), print('Error with dataset_dir: CleanAnnotation not exist')
 
         self.user_id =user_id
@@ -123,6 +123,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.seq_num = len(self.seq_list)
 
     def loadExistJson(self):
+        print('Hei')
         if self.debug == False:
             read_path = os.path.join(self.dataset_dir, 'Scribbles', self.seq_name)
         else:
@@ -145,7 +146,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.nextSeq()
 
     def loadMetaJson(self):
-        meta_json_path = self.dataset_dir + '/meta.json'
+        meta_json_path = os.path.join(self.dataset_dir, 'train', 'meta.json')
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
         self.obj_num = len(meta_json['videos'][self.seq_name]['objects'])
