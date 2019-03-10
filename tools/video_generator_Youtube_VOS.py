@@ -78,7 +78,14 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
                 frame_labeled.append(frame)
                 frame_idx = idx
 
+        if len(frame_labeled) != 1:
+            item_path = os.path.join(scribble_dir, labeled_seq[seq_id])
+            shutil.rmtree(item_path)
+            print('    No labeled frame: seq %s deleted!' % item_path)
+            continue
+
         assert len(frame_labeled) == 1, '%s: Number of labeled frame is %d rather than 1' % (seq_name, len(frame_labeled))
+
         scribbles = frame_labeled[0]
 
 
@@ -99,10 +106,12 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
                 pt_x = int(img_w * pt[0])
                 pt_y = int(img_h * pt[1])
                 cv2.circle(img, (pt_x, pt_y), 2, getColor(stroke['object_id']), thickness=-1)
-                cv2.putText(img, str(seq_id) + seq_name, (10, 30), 1, 2, (0, 255, 0))
+                cv2.putText(img, 'Sequence: ' + seq_name, (10, 30), 1, 2, (0, 255, 0))
+                cv2.putText(img, 'Frame: ' + str(frame_idx), (10, 60), 1, 2, (0, 255, 0))
+
 
                 '''write video'''
-                out.write(img)
+                # out.write(img)
                 '''Count labeled object number'''
                 obj_list.append(stroke['object_id'])
                 # cv2.imshow('0', img)
@@ -119,7 +128,7 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
 
     # cv2.destroyAllWindows()
     if len(err_seq_list) != 0:
-        print('Inomplete sequences:')
+        print('Incomplete sequences:')
         for idx in err_seq_list:
             print(idx, labeled_seq[idx])
         op = input('Delete incomplete scribble? (Y/N)')
@@ -137,8 +146,8 @@ def generate_video(image_dir, scribble_dir, user_id, list_id):
 if __name__ == '__main__':
     args = init_args()
     args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS/'
-    args.user_id = 9
-    args.list_id = 5
+    args.user_id = 6
+    args.list_id = 3
 
     scribble_dir = os.path.join(args.dataset_dir, 'temp', 'Scribbles')
     # scribble_dir = os.path.join(args.dataset_dir, 'Scribbles')

@@ -63,8 +63,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.selectSeq()
 
     def selectSeq(self):
-        self.seq_dir = os.path.join(self.dataset_dir,'train', 'JPEGImages')
-        self.annot_dir = os.path.join(self.dataset_dir,'train', 'CleanedAnnotations')
+        self.seq_dir = os.path.join(self.dataset_dir, 'JPEGImages')
+        self.annot_dir = os.path.join(self.dataset_dir, 'CleanedAnnotations')
 
 
         assert os.path.exists(self.seq_dir), 'Error with dataset_dir: JPEGImages dir not exist'
@@ -75,7 +75,6 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
         self.painting = False
         self.init_time = None
         self.horizontalSlider.setValue(0)
-        self.loadMetaJson()
 
         self.seq_name = self.seq_list[self.seq_idx]
         new_list_len = len(self.new_seqs_dict[str(self.list_idx)])
@@ -97,6 +96,8 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.label_info.setText('Right')
         else:
             self.label_info.setText('Labeled as Wrong!')
+
+        self.loadMetaJson()
 
         self.resetFrame()
 
@@ -137,12 +138,18 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
             self.seq_num = len(self.seq_list)
 
     def loadMetaJson(self):
-        meta_json_path = os.path.join(self.dataset_dir,'train', 'meta.json')
+        meta_json_path = os.path.join(self.dataset_dir, 'meta.json')
 
         with open(meta_json_path, 'r') as f:
             meta_json = json.load(f)
 
+        # print(meta_json['videos'][self.seq_name]['objects'])
         self.obj_num = len(meta_json['videos'][self.seq_name]['objects'])
+        print(self.seq_name)
+        print('seq_idx: ', self.seq_idx)
+        print('List: ', self.list_idx)
+        print()
+        # print(self.obj_num)
         self.label_obj.setText('Obj Number: ' + str(self.obj_num))
 
     def loadImg(self):
@@ -252,6 +259,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def nextSeq(self):
         if self.seq_idx < self.seq_num - 1:
             self.seq_idx += 1
+            # self.seq_name = self.seq_list[self.seq_idx]
             self.saveStep()
             self.selectSeq()
         else:
@@ -261,6 +269,7 @@ class MainWindow(QtWidgets.QWidget, Ui_Form):
     def lastSeq(self):
         if self.seq_idx > 0:
             self.seq_idx -= 1
+            # self.seq_name = self.seq_list[self.seq_idx]
             self.saveStep()
             self.selectSeq()
         else:

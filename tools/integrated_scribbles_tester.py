@@ -20,8 +20,8 @@ def init_args():
 if __name__ == '__main__':
     args = init_args()
     args.dataset_dir = 'E:\Documents\SIST\Projects\Davis_challenge\dataset\Youtube-VOS'
-    args.user_id = 9
-    args.list_id = 5
+    args.user_id = 6
+    args.list_id = 3
     args.debug = True
 
     if args.debug == True:
